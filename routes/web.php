@@ -29,5 +29,7 @@ Route::middleware([
     Route::get('/personas', [PersonaController::class, 'index'])->name('personas.index');
     Route::get('/personas/crear', [PersonaController::class, 'crear'])->name('personas.crear');
     Route::post('/personas', [PersonaController::class, 'store'])->name('personas.store');
+    Route::get('/personas/{persona}/editar', [PersonaController::class, 'editar'])->name('personas.editar');
+    Route::put('/personas/{persona}', [PersonaController::class, 'actualizar'])->name('personas.actualizar');
 
 });

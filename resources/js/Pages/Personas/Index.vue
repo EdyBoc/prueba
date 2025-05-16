@@ -6,7 +6,7 @@ defineProps({
 });
 
 const irACrearPersona = () => {
-router.visit("/personas/crear");
+    router.visit("/personas/crear");
 };
 </script>
 
@@ -14,9 +14,12 @@ router.visit("/personas/crear");
     <div class="max-w-7xl mx-auto px-6 py-4">
         <h1 class="text-2xl font-bold mb-4">Listado de Personas</h1>
 
- <div v-if="flashSuccess" class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
-      {{ flashSuccess }}
-    </div>
+        <div
+            v-if="flashSuccess"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4"
+        >
+            {{ flashSuccess }}
+        </div>
 
         <div class="mb-4">
             <button
@@ -54,7 +57,12 @@ router.visit("/personas/crear");
                         }}
                     </td>
                     <td class="p-2">{{ persona.email }}</td>
-                    <td class="p-2">Editar | Eliminar</td>
+                    <button
+                        @click="router.visit(`/personas/${persona.id}/editar`)"
+                        class="text-blue-600 hover:underline"
+                    >
+                        Editar
+                    </button>
                 </tr>
             </tbody>
         </table>
