@@ -141,27 +141,40 @@ class PersonaController extends Controller
     public function actualizar(Request $request, Persona $persona)
 
     {
+
+
         $validator = Validator::make($request->all(), [
-            'primer_nombre'     => 'required|max:100',
-            'segundo_nombre'    => 'nullable|max:100',
-            'primer_apellido'   => 'required|max:100',
-            'segundo_apellido'  => 'required|max:100',
-            'apellido_casada'   => 'nullable|max:100',
+            'primer_nombre'     => 'required|string|max:100',
+            'segundo_nombre'    => 'nullable|string|max:100',
+            'primer_apellido'   => 'required|string|max:100',
+            'segundo_apellido'  => 'required|string|max:100',
+            'apellido_casada'   => 'nullable|string|max:100',
             'tipo_documento'    => 'required|in:cui,pasaporte',
             'cui'               => Rule::requiredIf($request->tipo_documento === 'cui'),
             'pasaporte'         => Rule::requiredIf($request->tipo_documento === 'pasaporte'),
             'fecha_nacimiento'  => 'required|date',
-            'telefono'          => 'required|max:20',
-            'email'             => 'required|email|unique:personas,email,' . $persona->id,
+            'telefono'          => 'required|string|max:20',
+            'email' => ['required','email', Rule::unique('personas')->ignore($persona->id),],
             'sexo'              => 'required|in:masculino,femenino',
             'estado_civil'      => 'required|string|max:50',
             'direccion'         => 'required|string',
-            'documento'     => 'nullable|file|mimes:pdf|max:1024',
-        ]);
+            'documento'     => 'required|file|mimes:pdf|max:1024',
+            ], [
+                'primer_nombre.required' => 'El primer nombre es obligatorio.',
+                'primer_apellido.required' => 'El primer apellido es obligatorio.',
+                'tipo_documento.required' => 'Debe seleccionar el tipo de documento.',
+                'email.email' => 'El correo electrónico no tiene un formato válido.',
+                'documento.required' => 'Debe adjuntar un archivo PDF.',
+                'documento.mimes' => 'El documento debe estar en formato PDF.',
+                'documento.max' => 'El archivo no debe superar 1MB.',
+            ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
         }
+
 
         try {
             DB::beginTransaction();

@@ -2,37 +2,64 @@
 import { ref } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 
+const props = defineProps({
+    persona: Object,
+});
+
 const form = useForm({
-    primer_nombre: "",
-    segundo_nombre: "",
-    primer_apellido: "",
-    segundo_apellido: "",
-    apellido_casada: "",
-    tipo_documento: "cui",
-    cui: "",
-    pasaporte: "",
-    fecha_nacimiento: "",
-    telefono: "",
-    email: "",
-    sexo: "masculino",
-    estado_civil: "",
-    direccion: "",
+    primer_nombre: props.persona?.primer_nombre || "",
+    segundo_nombre: props.persona?.segundo_nombre || "",
+    primer_apellido: props.persona?.primer_apellido || "",
+    segundo_apellido: props.persona?.segundo_apellido || "",
+    apellido_casada: props.persona?.apellido_casada || "",
+    tipo_documento: props.persona?.tipo_documento || "cui",
+    cui: props.persona?.cui || "",
+    pasaporte: props.persona?.pasaporte || "",
+    fecha_nacimiento: props.persona?.fecha_nacimiento || "",
+    telefono: props.persona?.telefono || "",
+    email: props.persona?.email || "",
+    sexo: props.persona?.sexo || "masculino",
+    estado_civil: props.persona?.estado_civil || "",
+    direccion: props.persona?.direccion || "",
     documento: null,
 });
 
 const submit = () => {
-    form.post("/personas", {
-        forceFormData: true,
-        onSuccess: () => {
-            alert("Persona registrada correctamente");
-        },
-    });
+    if (props.persona) {
+        form.transform((data) => {
+            const formData = new FormData();
+            for (const key in data) {
+                formData.append(key, data[key]);
+            }
+            formData.append('_method', 'PUT');
+            return formData;
+        }).post(`/personas/${props.persona.id}`, {
+            onSuccess: () => {
+                alert("Persona actualizada correctamente");
+            },
+        });
+    } else {
+        form.post("/personas", {
+            forceFormData: true,
+            onSuccess: () => {
+                alert("Persona registrada correctamente");
+            },
+        });
+    }
 };
 </script>
 
 <template>
     <div class="max-w-3xl mx-auto p-6 bg-white rounded shadow">
         <h1 class="text-2xl font-bold mb-6">Registrar Persona</h1>
+
+        <div v-if="form.errors.error" class="col-span-2 mb-4">
+            <div
+                class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded"
+            >
+                {{ form.errors.error }}
+            </div>
+        </div>
 
         <form
             @submit.prevent="submit"
@@ -169,11 +196,7 @@ const submit = () => {
 
             <div class="col-span-2">
                 <label>Documento PDF</label>
-                <input
-                    type="file"
-                    @change="(e) => (form.documento = e.target.files[0])"
-                    class="input"
-                />
+                <input type="file" @change="(e) => (form.documento = e.target.files[0])" />
                 <span class="text-red-500 text-sm">{{
                     form.errors.documento
                 }}</span>
