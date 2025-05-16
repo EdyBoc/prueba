@@ -205,7 +205,46 @@ class PersonaController extends Controller
     }
 
 
+    public function aprobar(Persona $persona)
+    {
+        try {
+            DB::beginTransaction();
+            $persona->estado = 'aprobado';
+            $persona->save();
+            DB::commit();
 
+            return redirect()->route('personas.index')->with('success', 'Persona aprobada correctamente.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Error al aprobar la persona.']);
+        }
+    }
+
+    public function rechazar(Persona $persona)
+    {
+        try {
+            DB::beginTransaction();
+            $persona->estado = 'rechazado';
+            $persona->save();
+            DB::commit();
+
+            return redirect()->route('personas.index')->with('success', 'Persona rechazada correctamente.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Error al rechazar la persona.']);
+        }
+    }
+
+
+    //Solo para tecnico  solo registros pendientes
+    public function revisiones()
+    {
+        $personas = Persona::where('estado', 'pendiente')->get();
+
+        return Inertia::render('Personas/Index', [
+            'personas' => $personas,
+        ]);
+    }
 
 
 }

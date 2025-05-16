@@ -1,13 +1,28 @@
 <script setup>
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 
 defineProps({
     personas: Array,
 });
 
+const flashSuccess = usePage().props.flash?.success || '';
+
 const irACrearPersona = () => {
     router.visit("/personas/crear");
 };
+
+const aprobar = (id) => {
+    if (confirm("¿Estás seguro de aprobar esta persona?")) {
+        router.post(`/personas/${id}/aprobar`);
+    }
+};
+
+const rechazar = (id) => {
+    if (confirm("¿Estás seguro de rechazar esta persona?")) {
+        router.post(`/personas/${id}/rechazar`);
+    }
+};
+
 </script>
 
 <template>
@@ -46,23 +61,38 @@ const irACrearPersona = () => {
                     class="border-t"
                 >
                     <td class="p-2">
-                        {{ persona.primer_nombre }}
-                        {{ persona.primer_apellido }}
+                        {{ persona.primer_nombre }} {{ persona.primer_apellido }}
                     </td>
                     <td class="p-2">
-                        {{
-                            persona.tipo_documento === "cui"
-                                ? persona.cui
-                                : persona.pasaporte
-                        }}
+                        {{ persona.tipo_documento === "cui" ? persona.cui : persona.pasaporte }}
                     </td>
                     <td class="p-2">{{ persona.email }}</td>
-                    <button
-                        @click="router.visit(`/personas/${persona.id}/editar`)"
-                        class="text-blue-600 hover:underline"
-                    >
-                        Editar
-                    </button>
+                    <td class="p-2">
+                        <button
+                            @click="router.visit(`/personas/${persona.id}/editar`)"
+                            class="text-blue-600 hover:underline mr-2"
+                        >
+                            Editar
+                        </button>
+
+                        <template v-if="persona.estado === 'pendiente'">
+                            <button
+                                @click="aprobar(persona.id)"
+                                class="text-green-600 hover:underline mr-2"
+                            >
+                                Aprobar
+                            </button>
+                            <button
+                                @click="rechazar(persona.id)"
+                                class="text-red-600 hover:underline"
+                            >
+                                Rechazar
+                            </button>
+                        </template>
+                        <template v-else>
+                            <span class="italic text-gray-500">{{ persona.estado }}</span>
+                        </template>
+                    </td>
                 </tr>
             </tbody>
         </table>
